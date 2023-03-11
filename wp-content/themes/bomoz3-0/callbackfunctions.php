@@ -8,7 +8,7 @@ function getAllPosts()
         'orderby'    => 'ID',
         'post_status' => 'publish',
         'order'    => 'DESC',
-        'posts_per_page' => -1 // this will retrive all the post that is published 
+        'posts_per_page' => -1
     );
     $result = new WP_Query($args);
     if ($result->have_posts()) :
@@ -18,6 +18,11 @@ function getAllPosts()
             $data['id'] = $postId;
             $data['title'] = get_post_meta($postId, 'post_title')[0];
             $data['author']  = get_the_author_meta('nickname');
+            $data['catagory'] = [];
+            $cat = get_the_category($postId);
+            foreach ($cat as $cd) {
+                array_push($data['catagory'], $cd->cat_name);
+            }
             $image = get_field('thumbnail_image');
             $thumbnailSrc  = esc_url($image['url']);
             $data['thumbnail'] = $thumbnailSrc;
@@ -28,6 +33,9 @@ function getAllPosts()
                     $details['type'] = get_sub_field('type');
                     if ($details['type'] == 'list') {
                         $details['content'] = explode('.', get_sub_field('description'));
+                    } elseif ($details['type'] == 'image') {
+                        $image = get_sub_field('description_image');
+                        $details['content'] = esc_url($image['url']);
                     } else {
 
                         $details['content'] = get_sub_field('description');
@@ -36,18 +44,18 @@ function getAllPosts()
                 endwhile;
             endif;
 
-            $data['display_images'] = [];
-            if (have_rows('display_images')) :
-                while (have_rows('display_images')) : the_row();
-                    $image = get_sub_field('image');
-                    $imageDetails = [];
-                    $imageDetails['url'] = esc_url($image['url']);
-                    $imageDetails['alt'] = esc_html($image['alt']);
-                    $imageDetails['title'] = esc_html($image['title']);
-                    array_push($data['display_images'],$imageDetails);
-                endwhile;
-            endif;
-            
+            // $data['display_images'] = [];
+            // if (have_rows('display_images')) :
+            //     while (have_rows('display_images')) : the_row();
+            //         $image = get_sub_field('image');
+            //         $imageDetails = [];
+            //         $imageDetails['url'] = esc_url($image['url']);
+            //         $imageDetails['alt'] = esc_html($image['alt']);
+            //         $imageDetails['title'] = esc_html($image['title']);
+            //         array_push($data['display_images'],$imageDetails);
+            //     endwhile;
+            // endif;
+
             $data['faq_details'] = [];
             $data['faq_questions'] = [];
             if (have_rows('faqs')) :
@@ -56,12 +64,12 @@ function getAllPosts()
                     $faqDetails = [];
                     $faqDetails['question'] = get_sub_field('question');
                     $faqDetails['answer'] = get_sub_field('answer');
-                    array_push($faqQuestions,get_sub_field('question'));
-                    array_push($data['faq_details'],$faqDetails);
+                    array_push($faqQuestions, get_sub_field('question'));
+                    array_push($data['faq_details'], $faqDetails);
                 endwhile;
-                array_push($data['faq_questions'],$faqQuestions);
+                array_push($data['faq_questions'], $faqQuestions);
             endif;
-            
+
 
 
 
