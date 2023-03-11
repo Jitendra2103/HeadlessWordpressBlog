@@ -177,3 +177,17 @@ if ( defined( 'JETPACK__VERSION' ) ) {
 }
 
 require get_template_directory().'/callbackfunctions.php';
+
+add_action( 'rest_api_init', function () {
+	register_rest_route( 'wp/v2/','post/list', array(
+	  'methods' => 'GET',
+	  'callback' => 'getAllPosts',
+	) );
+  } );
+
+  add_action( 'rest_api_init', function () {
+	register_rest_route( 'wp/v2/','post/describe', array(
+	  'methods' => 'GET',
+	  'callback' => 'describePost',
+	) );
+  } );
